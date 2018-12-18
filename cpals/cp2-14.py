@@ -25,7 +25,7 @@ block_size = 16
 key = Random.new().read(block_size)
 random_prefix = Random.new().read(random.randint(0,255))
 
-def oracle_enc2(pt):
+def oracle_enc2(pt=''):
 	unknown_string = b64decode(
 		"Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg\n" +
 		"aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq\n" +
@@ -35,12 +35,13 @@ def oracle_enc2(pt):
 	return aes_ecb_enc(pt, key)
 
 def get_block_size():
-	ct_len_list = []
-	for i in xrange(1, 1000):
-		dumb = chr(255) * i
-		ct = oracle_enc2(dumb)
-		ct_len_list.append(len(ct))
-	return sorted(set(ct_len_list))[-1] - sorted(set(ct_len_list))[-2]
+	n = 1
+	default_len = len(oracle_enc2())
+	while True:
+		blocksize = len(oracle_enc2(chr(255)*n)) - default_len
+		if blocksize:
+			return blocksize
+		n += 1
 
 def get_prefix_info():
 	bs = get_block_size()

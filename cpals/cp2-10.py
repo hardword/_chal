@@ -12,7 +12,7 @@ def pad_PKCS7(msg, block_size):
 
 def enc(pt, key, iv):
 	cipher = AES.new(key, AES.MODE_CBC, iv)
-	return b64encode(cipher.encrypt(pt))
+	return cipher.encrypt(pt)
 
 def dec(ct, key, iv):
 	cipher = AES.new(key, AES.MODE_CBC, iv)

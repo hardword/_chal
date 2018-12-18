@@ -52,7 +52,7 @@ def profile_to_urlquery(obj):
 	return 'email='+obj['email']+'&uid='+obj['uid']+'&role='+obj['role']	
 
 
-def profile_for(email):
+def profile_for(email=''):
 	pt = pad_PKCS7(profile_to_urlquery(profile(email)),len(key))
 	ct = aes_ecb_enc(pt, key)
 	return ct
@@ -63,13 +63,13 @@ def decrypt_profile(ct, key):
 	return pt
 
 def get_block_size():
-	ct_len_list = []
-	for i in xrange(1, 100):
-		dumb = chr(255) * i
-		ct = profile_for(dumb)
-		ct_len_list.append(len(ct))
-	return sorted(set(ct_len_list))[-1] - sorted(set(ct_len_list))[-2]
-
+	n = 1
+	default_len = len(profile_for())
+	while True:
+		blocksize = len(profile_for(chr(255)*n)) - default_len
+		if blocksize:
+			return blocksize
+		n += 1
 
 def create_admin_profile():
 	bs = get_block_size()

@@ -34,7 +34,7 @@ def cbc_or_ecb(ct, block_size):
 block_size = 16
 key = Random.new().read(block_size)
 
-def oracle_enc1(pt):
+def oracle_enc1(pt=''):
     unknown_string = b64decode(
         "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg\n" +
         "aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq\n" +
@@ -44,12 +44,13 @@ def oracle_enc1(pt):
     return aes_ecb_enc(pt, key)
 
 def get_block_size():
-	ct_len_list = []
-	for i in xrange(1, 500):
-		pt = chr(255) * i
-		ct = oracle_enc1(pt)
-		ct_len_list.append(len(ct))
-	return sorted(set(ct_len_list))[-1] - sorted(set(ct_len_list))[-2]
+	n = 1
+	default_len = len(oracle_enc1())
+	while True:
+		blocksize = len(oracle_enc1(chr(255)*n)) - default_len
+		if blocksize:
+			return blocksize
+		n += 1
 
 blocksize = get_block_size()
 print "Block Size:", blocksize
